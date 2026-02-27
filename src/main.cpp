@@ -1,100 +1,45 @@
-/**
- * Include the Geode headers.
- */
 #include <Geode/Geode.hpp>
+#include <Geode/modify/MenuLayer.hpp>
+#include <vector>
+#include <string>
 
-/**
- * Brings cocos2d and all Geode namespaces to the current scope.
- */
 using namespace geode::prelude;
 
-/**
- * `$modify` lets you extend and modify GD's classes.
- * To hook a function in Geode, simply $modify the class
- * and write a new function definition with the signature of
- * the function you want to hook.
- *
- * Here we use the overloaded `$modify` macro to set our own class name,
- * so that we can use it for button callbacks.
- *
- * Notice the header being included, you *must* include the header for
- * the class you are modifying, or you will get a compile error.
- *
- * Another way you could do this is like this:
- *
- * struct MyMenuLayer : Modify<MyMenuLayer, MenuLayer> {};
- */
-#include <Geode/modify/MenuLayer.hpp>
-class $modify(MyMenuLayer, MenuLayer) {
-	/**
-	 * Typically classes in GD are initialized using the `init` function, (though not always!),
-	 * so here we use it to add our own button to the bottom menu.
-	 *
-	 * Note that for all hooks, your signature has to *match exactly*,
-	 * `void init()` would not place a hook!
-	*/
-	bool init() {
-		/**
-		 * We call the original init function so that the
-		 * original class is properly initialized.
-		 */
-		if (!MenuLayer::init()) {
-			return false;
-		}
+class $modify(MenuLayer) {
+    bool init() {
+        // Primero ejecutamos el código original del juego
+        if (!MenuLayer::init()) return false;
 
-		/**
-		 * You can use methods from the `geode::log` namespace to log messages to the console,
-		 * being useful for debugging and such. See this page for more info about logging:
-		 * https://docs.geode-sdk.org/tutorials/logging
-		*/
-		log::debug("Hello from my MenuLayer::init hook! This layer has {} children.", this->getChildrenCount());
+        // 1. Lista de mensajes animadores
+        std::vector<std::string> mensajes = {
+            "¡Hoy es el día del Extreme Demon!",
+            "¡Dale con todo, Dashy!",
+            "¡Ese nivel no se va a pasar solo!",
+            "¡Céntrate y lo lograrás!",
+            "¡Eres una leyenda en potencia!",
+            "¡No te rindas, el 98% es solo un número!",
+            "¡A darle átomos!"
+        };
 
-		/**
-		 * See this page for more info about buttons
-		 * https://docs.geode-sdk.org/tutorials/buttons
-		*/
-		auto myButton = CCMenuItemSpriteExtra::create(
-			CCSprite::createWithSpriteFrameName("GJ_likeBtn_001.png"),
-			this,
-			/**
-			 * Here we use the name we set earlier for our modify class.
-			*/
-			menu_selector(MyMenuLayer::onMyButton)
-		);
+        // 2. Elegir uno al azar
+        // Usamos rand() para algo simple
+        std::string fraseElegida = mensajes[rand() % mensajes.size()];
 
-		/**
-		 * Here we access the `bottom-menu` node by its ID, and add our button to it.
-		 * Node IDs are a Geode feature, see this page for more info about it:
-		 * https://docs.geode-sdk.org/tutorials/nodetree
-		*/
-		auto menu = this->getChildByID("bottom-menu");
-		menu->addChild(myButton);
+        // 3. Crear el texto visual (Label)
+        // Usamos "goldFont.fnt" para que se vea como el juego original
+        auto etiqueta = CCLabelBMFont::create(fraseElegida.c_str(), "goldFont.fnt");
 
-		/**
-		 * The `_spr` string literal operator just prefixes the string with
-		 * your mod id followed by a slash. This is good practice for setting your own node ids.
-		*/
-		myButton->setID("my-button"_spr);
+        // 4. Posicionarlo
+        auto tamañoPantalla = CCDirector::sharedDirector()->getWinSize();
+        
+        // Lo ponemos arriba en el centro (puedes ajustar los números)
+        etiqueta->setPosition({ tamañoPantalla.width / 2, tamañoPantalla.height - 50 });
+        etiqueta->setScale(0.6f); // Tamaño del texto (0.5 es la mitad)
+        etiqueta->setID("mensaje-animador-label"); // ID para que Geode sepa qué es
 
-		/**
-		 * We update the layout of the menu to ensure that our button is properly placed.
-		 * This is yet another Geode feature, see this page for more info about it:
-		 * https://docs.geode-sdk.org/tutorials/layouts
-		*/
-		menu->updateLayout();
+        // 5. Añadirlo a la pantalla
+        this->addChild(etiqueta);
 
-		/**
-		 * We return `true` to indicate that the class was properly initialized.
-		 */
-		return true;
-	}
-
-	/**
-	 * This is the callback function for the button we created earlier.
-	 * The signature for button callbacks must always be the same,
-	 * return type `void` and taking a `CCObject*`.
-	*/
-	void onMyButton(CCObject*) {
-		FLAlertLayer::create("Geode", "Hello from my custom mod!", "OK")->show();
-	}
+        return true;
+    }
 };
