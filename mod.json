@@ -6,9 +6,9 @@
 		"mac": "2.2081",
 		"ios": "2.2081"
 	},
-	"id": "$MOD_ID",
-	"name": "$MOD_NAME",
-	"version": "$MOD_VERSION",
+	"id": "More_Props.firstmod",
+	"name": "MORE PROPS!",
+	"version": "v1.0A",
 	"developer": "$MOD_DEVELOPER",
 	"description": "$MOD_DESCRIPTION",
 	"dependencies": {
