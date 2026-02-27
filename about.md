@@ -1,3 +1,2 @@
-# Template Mod
-
-Edit about.md to change this
+# More props
+More props For your geometry dash <3
